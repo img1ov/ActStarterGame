@@ -31,7 +31,7 @@ struct FActInputFlagAction
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TEnumAsByte<EActInputFlag> InputFlag = EActInputFlag::None;
+	EActInputFlag InputFlag = EActInputFlag::None;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<const UInputAction> InputAction = nullptr;

@@ -27,16 +27,15 @@ public:
 	void AddInputMappings(const UActInputConfig* InputConfig, UEnhancedInputLocalPlayerSubsystem* InputSubsystem) const;
 	void RemoveInputMappings(const UActInputConfig* InputConfig, UEnhancedInputLocalPlayerSubsystem* InputSubsystem) const;
 
-	template<class UserClass, typename TriggerFuncType>
-	void BindNativeInputFlagActions(const UActInputConfig* InputConfig, UserClass* Object, TriggerFuncType TriggerFunc, TArray<uint32>& BindHandles);
-
+	template<class UserClass, typename TriggerFuncType, typename ReleasedFuncType>
+	void BindNativeInputFlagActions(const UActInputConfig* InputConfig, UserClass* Object, TriggerFuncType TriggerFunc, ReleasedFuncType ReleasedFunc, TArray<uint32>& BindHandles);
+	
 	void RemoveBinds(TArray<uint32>& BindHandles);
 	
 };
 
-template <class UserClass, typename TriggerFuncType>
-void UActInputComponent::BindNativeInputFlagActions(const UActInputConfig* InputConfig, UserClass* Object,
-	TriggerFuncType TriggerFunc, TArray<uint32>& BindHandles)
+template<class UserClass, typename TriggerFuncType, typename ReleasedFuncType>
+void UActInputComponent::BindNativeInputFlagActions(const UActInputConfig* InputConfig, UserClass* Object, TriggerFuncType TriggerFunc, ReleasedFuncType ReleasedFunc, TArray<uint32>& BindHandles)
 {
 	check(InputConfig);
 
@@ -48,7 +47,11 @@ void UActInputComponent::BindNativeInputFlagActions(const UActInputConfig* Input
 			{
 				BindHandles.Add(BindAction(Action.InputAction, ETriggerEvent::Triggered, Object, TriggerFunc, Action.InputFlag).GetHandle());
 			}
+
+			if (ReleasedFunc)
+			{
+				BindHandles.Add(BindAction(Action.InputAction, ETriggerEvent::Completed, Object, ReleasedFunc, Action.InputFlag).GetHandle());
+			}
 		}
 	}
 }
-

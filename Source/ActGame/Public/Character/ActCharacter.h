@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/ActCharacterBase.h"
+
 #include "ActCharacter.generated.h"
 
 /**

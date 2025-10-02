@@ -15,7 +15,7 @@ enum class EActInputFlag : uint8
 	None,
 	
 	Attack_Light,
-	Attack_Light_Held,
+	Attack_Heavy,
 	
 	Jump,
 };

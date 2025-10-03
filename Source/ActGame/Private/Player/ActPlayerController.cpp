@@ -2,6 +2,7 @@
 
 
 #include "Player/ActPlayerController.h"
+#include "Input/ActInputAnalyzerSubsystem.h"
 
 #include "Input/ActInputComponent.h"
 
@@ -14,7 +15,8 @@ void AActPlayerController::BeginPlay()
 		InputLocalPlayerSubsystem->AddMappingContext(InputMappingContext, 0);
 	}
 
-	
+	InputAnalyzerSubsystem = ULocalPlayer::GetSubsystem<UActInputAnalyzerSubsystem>(GetLocalPlayer());
+	check(InputAnalyzerSubsystem)
 }
 
 void AActPlayerController::SetupInputComponent()
@@ -33,7 +35,7 @@ void AActPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	
-	for (FActInputEntry& Entry : ActInputEntryBuffer)
+	for (const FActInputEntry& Entry : InputAnalyzerSubsystem->GetInputEntryBuffer())
 	{
 		if (const UEnum* EnumObject = StaticEnum<EActInputFlag>())
 		{
@@ -45,32 +47,10 @@ void AActPlayerController::Tick(float DeltaSeconds)
 
 void AActPlayerController::ActInputFlagTriggered(EActInputFlag InputFlag)
 {
-	if (ActInputEntryBuffer.IsEmpty())
-	{
-		ActInputEntryBuffer.Add(FActInputEntry(InputFlag));
-		return;
-	}
-	
-	FActInputEntry& TrailEntry = ActInputEntryBuffer.Last();
-	if (TrailEntry.InputFlag == InputFlag && !TrailEntry.bCompleted)
-	{
-		TrailEntry.TriggerDuration += GetWorld()->GetDeltaSeconds();
-	}
-	else
-	{
-		ActInputEntryBuffer.Add(FActInputEntry(InputFlag));
-	}
+	InputAnalyzerSubsystem->PushInputEntry(InputFlag);
 }
 
 void AActPlayerController::ActInputFlagReleased(EActInputFlag InputFlag)
 {
-	for (int32 i = ActInputEntryBuffer.Num() - 1; i >= 0; --i)
-	{
-		FActInputEntry& Entry = ActInputEntryBuffer[i];
-		if (Entry.InputFlag == InputFlag && !Entry.bCompleted)
-		{
-			Entry.bCompleted = true;
-			break;
-		}
-	}
+	InputAnalyzerSubsystem->ReleaseInputEntry(InputFlag);
 }

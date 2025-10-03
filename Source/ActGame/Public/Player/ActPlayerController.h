@@ -9,30 +9,11 @@
 
 #include "ActPlayerController.generated.h"
 
+class UActInputAnalyzerSubsystem;
 enum class EActInputFlag : uint8;
 class UActInputConfig;
 class UActInputComponent;
 
-USTRUCT(BlueprintType)
-struct FActInputEntry
-{
-	GENERATED_BODY()
-
-public:
-	FActInputEntry(){}
-	
-	FActInputEntry(const EActInputFlag& InInputFlag) : InputFlag(InInputFlag) {}
-	
-public:
-	UPROPERTY(BlueprintReadOnly)
-	EActInputFlag InputFlag = EActInputFlag::None;
-
-	UPROPERTY(EditDefaultsOnly)
-	float TriggerDuration = 0.f;
-
-	UPROPERTY(EditDefaultsOnly)
-	uint8 bCompleted = false;
-};
 
 /**
  * 
@@ -63,5 +44,6 @@ public:
 	TObjectPtr<UActInputConfig> ActInputConfig;
 
 private:
-	TArray<FActInputEntry> ActInputEntryBuffer;
+	UPROPERTY()
+	TObjectPtr<UActInputAnalyzerSubsystem> InputAnalyzerSubsystem;
 };

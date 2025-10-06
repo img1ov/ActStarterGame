@@ -14,8 +14,6 @@ void AActPlayerController::BeginPlay()
 	{
 		InputLocalPlayerSubsystem->AddMappingContext(InputMappingContext, 0);
 	}
-
-	
 }
 
 void AActPlayerController::SetupInputComponent()
@@ -23,29 +21,46 @@ void AActPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	UActInputComponent* ActInputComponent = CastChecked<UActInputComponent>(InputComponent);
+	
 	check(ActInputComponent)
-	check(ActInputConfig)
+	check(InputConfig)
 
 	TArray<uint32> BindHandles;
-	ActInputComponent->BindNativeInputFlagActions(ActInputConfig, this, &ThisClass::ActInputFlagTriggered, &ThisClass::ActInputFlagReleased, BindHandles);
+	ActInputComponent->BindNativeInputFlagActions(InputConfig, this, &ThisClass::ActInputFlagPressed, &ThisClass::ActInputFlagTriggered, &ThisClass::ActInputFlagReleased, BindHandles);
 
 	InputAnalyzerSubsystem = ULocalPlayer::GetSubsystem<UActInputAnalyzerSubsystem>(GetLocalPlayer());
-	check(InputAnalyzerSubsystem)
+	
+	check(InputAnalyzerSubsystem);
+	check(InputCommandConfig)
+
+	InputAnalyzerSubsystem->ResetInputAnalyzer(InputCommandConfig);
+	InputAnalyzerSubsystem->OnCommandMatched.AddLambda(
+		[](const FGameplayTag ResultTag)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, *ResultTag.ToString());
+		}
+	);
 }
 
 void AActPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	
+
+	InputAnalyzerSubsystem->TickAnalyzer(DeltaSeconds);
 	InputAnalyzerSubsystem->AddDebugMassageOnScreen();
+}
+
+void AActPlayerController::ActInputFlagPressed(EActInputFlag InputFlag)
+{
+	InputAnalyzerSubsystem->AddInputFlagToBuffer(InputFlag);
 }
 
 void AActPlayerController::ActInputFlagTriggered(EActInputFlag InputFlag)
 {
-	InputAnalyzerSubsystem->PushInputEntry(InputFlag);
+	
 }
 
 void AActPlayerController::ActInputFlagReleased(EActInputFlag InputFlag)
 {
-	InputAnalyzerSubsystem->ReleaseInputEntry(InputFlag);
+	
 }

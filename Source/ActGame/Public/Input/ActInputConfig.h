@@ -14,27 +14,51 @@ enum class EActInputFlag : uint8
 {
 	None,
 	
-	Attack_Light,
-	Attack_Heavy,
-	
+	AttackLight,
+	AttackLightHold,
+	AttackHeavy,
+	AttackHeavyHold,
+
 	Jump,
+	Dash,
 };
 
-/**
- * FActInputFlagAction
- *
- *	Struct used to map a input action to a act input flag.
- */
 USTRUCT(BlueprintType)
 struct FActInputFlagAction
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+public:
+	UPROPERTY(EditDefaultsOnly)
 	EActInputFlag InputFlag = EActInputFlag::None;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<const UInputAction> InputAction = nullptr;
+};
+
+USTRUCT(BlueprintType)
+struct FActInputCommandEntry
+{
+	GENERATED_BODY()
+	
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	EActInputFlag CommandFlag = EActInputFlag::None;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float AllowedTimeGap = 0.25f;
+};
+
+USTRUCT(BlueprintType)
+struct FActInputCommandSet
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag CommandTag = FGameplayTag();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<FActInputCommandEntry> CommandEntrySet;
 };
 
 /**
@@ -52,8 +76,21 @@ public:
 
 	const UInputAction* FindNativeInputActionForFlag(const EActInputFlag& InputFlag, bool bLogNotFound = true) const;
 
+
 public:
-	// List of input actions used by the owner.  These input actions are mapped to a act input flag and are automatically bound to matching ability commands.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (TitleProperty = "InputAction"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<FActInputFlagAction> NativeInputFlagActions;
+};
+
+UCLASS()
+class ACTGAME_API UActInputCommandConfig : public UDataAsset
+{
+	GENERATED_BODY()
+
+public:
+	UActInputCommandConfig(const FObjectInitializer& ObjectInitializer);
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<FActInputCommandSet> CommandSetContainer;
 };

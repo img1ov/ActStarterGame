@@ -10,10 +10,7 @@
 #include "ActPlayerController.generated.h"
 
 class UActInputAnalyzerSubsystem;
-enum class EActInputFlag : uint8;
-class UActInputConfig;
 class UActInputComponent;
-
 
 /**
  * 
@@ -28,22 +25,25 @@ protected:
 
 	virtual void SetupInputComponent() override;
 
-private:
 	virtual void Tick(float DeltaSeconds) override;
+
+private:
+	void ActInputFlagPressed(EActInputFlag InputFlag);
 	
 	void ActInputFlagTriggered(EActInputFlag InputFlag);
 
 	void ActInputFlagReleased(EActInputFlag InputFlag);
 
-	
-public:
-	UPROPERTY(EditAnywhere)
+private:
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UInputMappingContext> InputMappingContext;
 
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UActInputConfig> ActInputConfig;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UActInputConfig> InputConfig;
 
-private:
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UActInputCommandConfig> InputCommandConfig;
+
 	UPROPERTY()
 	TObjectPtr<UActInputAnalyzerSubsystem> InputAnalyzerSubsystem;
 };

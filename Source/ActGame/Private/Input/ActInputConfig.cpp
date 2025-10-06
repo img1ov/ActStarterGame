@@ -31,3 +31,7 @@ const UInputAction* UActInputConfig::FindNativeInputActionForFlag(const EActInpu
 	
 	return nullptr;
 }
+
+UActInputCommandConfig::UActInputCommandConfig(const FObjectInitializer& ObjectInitializer)
+{
+}

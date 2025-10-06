@@ -3,3 +3,12 @@
 #pragma once
 
 #include "NativeGameplayTags.h"
+
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputCommand_AttackLight)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputCommand_AttackLightHold)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputCommand_AttackHeavy)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputCommand_AttackHeavyHold)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputCommand_Dash)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputCommand_DashAttack)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputCommand_Jump)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputCommand_JumpAttack)

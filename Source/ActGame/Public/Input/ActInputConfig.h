@@ -43,10 +43,12 @@ struct FActInputCommandEntry
 	
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	EActInputFlag CommandFlag = EActInputFlag::None;
+	EActInputFlag InputFlag = EActInputFlag::None;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float AllowedTimeGap = 0.25f;
+
+	bool IsValid = true;
 };
 
 USTRUCT(BlueprintType)
@@ -75,7 +77,6 @@ public:
 	UActInputConfig(const FObjectInitializer& ObjectInitializer);
 
 	const UInputAction* FindNativeInputActionForFlag(const EActInputFlag& InputFlag, bool bLogNotFound = true) const;
-
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

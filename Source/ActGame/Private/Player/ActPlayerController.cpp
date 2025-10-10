@@ -47,6 +47,7 @@ void AActPlayerController::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	InputAnalyzerSubsystem->TickAnalyzer(DeltaSeconds);
+	InputAnalyzerSubsystem->AddOnScreenDebugMessageForBuffer();
 }
 
 void AActPlayerController::ActInputFlagPressed(EActInputFlag InputFlag)

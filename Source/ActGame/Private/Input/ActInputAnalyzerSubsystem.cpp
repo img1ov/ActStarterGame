@@ -16,7 +16,8 @@ void UActInputAnalyzerSubsystem::TickAnalyzer(const float DeltaSeconds)
 
 void UActInputAnalyzerSubsystem::AddInputFlagToBuffer(const EActInputFlag InputFlag)
 {
-	InputBuffer.Add(InputFlag);
+	
+	InputBuffer.Add(FActInputBufferEntry(InputFlag));
 	TryToMatchInputCommands();
 }
 
@@ -28,23 +29,24 @@ void UActInputAnalyzerSubsystem::ClearInputBuffer()
 	}
 }
 
-void UActInputAnalyzerSubsystem::GetInputBuffer(TArray<EActInputFlag>& OutArray) const
+void UActInputAnalyzerSubsystem::GetInputBuffer(TArray<FActInputBufferEntry>& OutArray)
 {
 	InputBuffer.ToArray(OutArray);
 }
 
-void UActInputAnalyzerSubsystem::AddOnScreenDebugMessageForBuffer() const
+void UActInputAnalyzerSubsystem::AddOnScreenDebugMessageForBuffer()
 {
 	if (!GEngine) return;
 
 	const UEnum* EnumObject = StaticEnum<EActInputFlag>();
 	if (!EnumObject) return;
 
-	for (int32 i = 0; i < InputBuffer.Num(); ++i)
+	for (int32 i = 0; i < InputBuffer.GetNum(); ++i)
 	{
-		const EActInputFlag& InputFlag = InputBuffer[i];
-
-		FString Message = FString::Printf(TEXT("[%d] : %s"),i,*EnumObject->GetNameStringByValue(static_cast<int64>(InputFlag)));
+		const EActInputFlag& InputFlag = InputBuffer[i].InputFlag;
+		const bool bMatchTimeout = InputBuffer[i].bMatchTimeout;
+		
+		FString Message = FString::Printf(TEXT("BufferIndex: [%d] : InputFlag: %s : MatchTimeout: %d"),i,*EnumObject->GetNameStringByValue(static_cast<int64>(InputFlag)), bMatchTimeout);
 		GEngine->AddOnScreenDebugMessage(i,0.f, FColor::Blue,Message);
 	}
 }
@@ -55,6 +57,11 @@ void UActInputAnalyzerSubsystem::TryToMatchInputCommands()
 	{
 		return;
 	}
+
+	if (InputBuffer.GetLatest().bMatchTimeout)
+	{
+		return;
+	}
 	
 	FGameplayTag ResultTag;
 	
@@ -62,15 +69,17 @@ void UActInputAnalyzerSubsystem::TryToMatchInputCommands()
 	{
 		const TArray<FActInputCommandEntry>& CommandEntrySet = CommandSet.CommandEntrySet;
 
-		int32 BufferIndex = InputBuffer.Num() -1;
+		int32 BufferIndex = InputBuffer.GetNum() -1;
 		int32 EntrySetIndex = CommandEntrySet.Num() -1;
 
 		while (BufferIndex >= 0 && EntrySetIndex >= 0)
 		{
-			const EActInputFlag& BufferFlag = InputBuffer.GetLatest(InputBuffer.Num() - 1 - BufferIndex);
+			const FActInputBufferEntry& BufferEntry = InputBuffer.GetLatest(InputBuffer.GetNum() - 1 - BufferIndex);
+			
+			const EActInputFlag& BufferFlag = BufferEntry.InputFlag;
 			const FActInputCommandEntry& CommandEntry = CommandEntrySet[EntrySetIndex];
 
-			if (BufferFlag != CommandEntry.CommandFlag)
+			if (BufferFlag != CommandEntry.InputFlag)
 			{
 				break;
 			}
@@ -102,7 +111,8 @@ void UActInputAnalyzerSubsystem::UpdateBufferLifeTime(const float DeltaSeconds)
 
 		if (BufferLifeTime <= 0.0f)
 		{
-			ClearInputBuffer();
+			FActInputBufferEntry& LatestEntry = InputBuffer.GetLatest();
+			LatestEntry.bMatchTimeout = true;
 		}
 	}
 }

@@ -33,7 +33,7 @@ void AActPlayerController::SetupInputComponent()
 	check(InputAnalyzerSubsystem);
 	check(InputCommandConfig)
 
-	InputAnalyzerSubsystem->ResetInputAnalyzer(InputCommandConfig);
+	InputAnalyzerSubsystem->InitInputAnalyzer(InputCommandConfig);
 	InputAnalyzerSubsystem->OnCommandMatched.AddLambda(
 		[](const FGameplayTag ResultTag)
 		{
@@ -45,8 +45,7 @@ void AActPlayerController::SetupInputComponent()
 void AActPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	InputAnalyzerSubsystem->TickAnalyzer(DeltaSeconds);
+	
 	InputAnalyzerSubsystem->AddOnScreenDebugMessageForBuffer();
 }
 

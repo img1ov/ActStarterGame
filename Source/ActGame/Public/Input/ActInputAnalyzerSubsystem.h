@@ -24,10 +24,18 @@ struct TFixedRingBuffer
 		NumItems = FMath::Min(NumItems + 1, Capacity);
 	}
 
-	FORCEINLINE void Empty()
+	FORCEINLINE void Empty(const bool bResetValue = false)
 	{
 		Head = 0;
 		NumItems = 0;
+
+		if (bResetValue)
+		{
+			for (int i = 0; i < Capacity; ++i)
+			{
+				Data[i] = T();
+			}
+		}
 	}
 
 	FORCEINLINE int32 GetNum() const { return NumItems; }
@@ -63,6 +71,7 @@ struct TFixedRingBuffer
     
 	FORCEINLINE void ToArray(TArray<T>& OutArray, const bool bFromOldest = true)
 	{
+		OutArray.Reset(NumItems);
 		OutArray.Reserve(NumItems);
 
 		if (bFromOldest)
@@ -87,14 +96,11 @@ struct FActInputBufferEntry
 public:
 	FActInputBufferEntry(){}
 
-	explicit FActInputBufferEntry(const EActInputFlag InInputFlag, const bool InMatchTimeout = false) : InputFlag(InInputFlag), bMatchTimeout(InMatchTimeout) {}
+	explicit FActInputBufferEntry(const EActInputFlag InInputFlag, const double InInputTime) : InputFlag(InInputFlag), InputTime(InInputTime) {}
 
 public:
-	void SetMatchTimeout(const bool InMatchTimeout) { bMatchTimeout = InMatchTimeout; }
-	
-public:
 	EActInputFlag InputFlag = EActInputFlag::None;
-	bool bMatchTimeout = false;
+	double InputTime = 0.f;
 };
 
 /**
@@ -106,33 +112,25 @@ class ACTGAME_API UActInputAnalyzerSubsystem : public ULocalPlayerSubsystem
 	GENERATED_BODY()
 
 public:
-	void ResetInputAnalyzer(const UActInputCommandConfig* CommandConfig);
-	
-	void TickAnalyzer(const float DeltaSeconds);
+	void InitInputAnalyzer(const UActInputCommandConfig* CommandConfig);
 	
 	void AddInputFlagToBuffer(const EActInputFlag InputFlag);
 
 	void ClearInputBuffer();
 
-	void GetInputBuffer(TArray<FActInputBufferEntry>& OutArray);
+	void GetInputBuffer(TArray<FActInputBufferEntry>& OutArray, const bool bFromOldest = true);
 
 	void AddOnScreenDebugMessageForBuffer();
 	
 private:
 	void TryToMatchInputCommands();
 
-	void UpdateBufferLifeTime(const float DeltaSeconds);
-
 public:
 	FOnCommandMatchedDelegate OnCommandMatched;
 
-	
 private:
 	UPROPERTY()
 	TArray<FActInputCommandSet> CommandSetContainer;
 	
 	TFixedRingBuffer<FActInputBufferEntry, 20> InputBuffer;
-	
-	UPROPERTY()
-	float BufferLifeTime = 0.f;
 };

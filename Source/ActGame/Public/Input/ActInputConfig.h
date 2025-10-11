@@ -47,8 +47,6 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float AllowedTimeGap = 0.25f;
-
-	bool IsValid = true;
 };
 
 USTRUCT(BlueprintType)
